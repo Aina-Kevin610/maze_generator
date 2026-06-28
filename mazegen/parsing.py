@@ -1,17 +1,6 @@
-import os
 import sys
 import random
 from typing import Any
-from render_terminal import print_box
-
-
-red = "\033[91m"
-green = "\033[92m"
-yellow = "\033[93m"
-bleu = "\033[94m"
-magenta = "\033[95m"
-cyan = "\033[96m"
-reset = "\033[0m"
 
 
 class ParseError(Exception):
@@ -45,7 +34,7 @@ def read_file(filename: str) -> list[str]:
         with open(filename, "r") as file:
             content = file.read().strip().splitlines()
     except FileNotFoundError:
-        print_box(["Error - File not found!", "failure", red])
+        print(["Error - File not found!", "failure", red])
         sys.exit(1)
     return content
 
@@ -137,7 +126,7 @@ def test_len_error(content: list[str]) -> list[tuple[str, str]]:
             tuples.append((split_line[0], split_line[1]))
         return tuples
     except ParseError as error:
-        print_box([f"Error - {error}", "failure", red])
+        print(f"Error - {error}")
         sys.exit(1)
 
 
@@ -217,7 +206,6 @@ def is_valid(final: dict[Any, Any]) -> None:
         if "SEED" not in final:
             final["SEED"] = None
 
-        # FIX: SPEED=None si absent, converti plus bas seulement si présent
         if "SPEED" not in final:
             final["SPEED"] = None
 
@@ -251,7 +239,6 @@ def is_valid(final: dict[Any, Any]) -> None:
                 f"Algo must be {algos}"
             )
 
-        # FIX: conversion de SPEED uniquement si la valeur est présente
         if final["SPEED"] is not None:
             speed_int = int(final["SPEED"])
             if speed_int < 1:
@@ -282,7 +269,7 @@ def is_valid(final: dict[Any, Any]) -> None:
             )
 
     except (ValueError, ParseError) as error:
-        print_box([f"Error - {error}", "failure", red])
+        print(f"Error - {error}")
         sys.exit(1)
 
 
@@ -317,7 +304,7 @@ def parse_config(
     validated = test_len_error(cleaned)
 
     if len(validated) < 6:
-        print_box(["Error - Missing mandatory parameter!", "failure", red])
+        print("Error - Missing mandatory parameter!")
         sys.exit(1)
 
     as_dict = convert_to_dict(validated)
