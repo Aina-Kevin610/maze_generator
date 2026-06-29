@@ -1,5 +1,5 @@
-WIDTH=10 #must be >0
-HEIGHT=10 #must be >0
+WIDTH=20 #must be >0
+HEIGHT=15 #must be >0
 ENTRY=1,1
 EXIT=1,9
 OUTPUT_FILE=maze.txt
