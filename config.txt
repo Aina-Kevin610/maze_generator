@@ -7,4 +7,4 @@ PERFECT=False
 ALGO=hunt_and_kill
 PATTERN=42
 SPEED = 100
-SEED = 1
+SEED = 12

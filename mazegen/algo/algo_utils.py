@@ -1,5 +1,7 @@
-from typing import Optional
+import sys
 import random
+
+from ..pattern import Pattern
 
 
 def init_grid(
@@ -23,6 +25,74 @@ def init_grid(
         [False for _ in range(width)] for _ in range(height)
     ]
     return grid, visited
+
+
+def init_protected(
+    pattern: str,
+    width: int,
+    height: int,
+    entry: tuple[str, str],
+    exit_: tuple[str, str],
+) -> set[tuple[int, int]]:
+    """
+    Build the set of protected cells from a pattern string.
+
+    The pattern is centered in the grid. Each cell whose glyph bit is 1
+    becomes a fully-walled protected cell that no algorithm may carve.
+
+    Prints a message and returns an empty set if the maze is too small
+    (< 10x10) or the pattern is unrecognized. Exits if entry or exit
+    overlaps the pattern.
+
+    Args:
+        pattern: Pattern string (e.g. "42"). Must be uppercase or digits.
+        width: Grid width.
+        height: Grid height.
+        entry: Entry coordinates as (x_str, y_str).
+        exit_: Exit coordinates as (x_str, y_str).
+
+    Returns:
+        Set of (x, y) coordinates that must remain fully walled.
+    """
+    if height < 10 or width < 10:
+        print(
+            f"Pattern [{pattern}] cannot be contained within "
+            "the maze! (10 x 10 is required)"
+        )
+        return set()
+
+    p = Pattern(pattern)
+    pat = p.create_merged()
+
+    if not pat or not pat[0]:
+        print(
+            f"Pattern [{pattern}] not recognized, skipping. "
+            "(must be uppercase or number)"
+        )
+        return set()
+
+    cx = width // 2
+    cy = height // 2
+    offset_x = len(pat[0]) // 2
+    offset_y = len(pat) // 2
+
+    protected: set[tuple[int, int]] = set()
+    for i in range(len(pat)):
+        for j in range(len(pat[i])):
+            if pat[i][j] == 1:
+                protected.add((cx - offset_x + j, cy - offset_y + i))
+
+    ex, ey = int(entry[0]), int(entry[1])
+    if (ex, ey) in protected:
+        print("Error - Inaccessible entry!")
+        sys.exit(1)
+
+    xx, xy = int(exit_[0]), int(exit_[1])
+    if (xx, xy) in protected:
+        print("Error - Inaccessible exit!")
+        sys.exit(1)
+
+    return protected
 
 
 def remove_wall(

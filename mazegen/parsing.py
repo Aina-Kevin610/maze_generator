@@ -34,7 +34,7 @@ def read_file(filename: str) -> list[str]:
         with open(filename, "r") as file:
             content = file.read().strip().splitlines()
     except FileNotFoundError:
-        print(["Error - File not found!", "failure", red])
+        print("Error - File not found!")
         sys.exit(1)
     return content
 

@@ -1,6 +1,5 @@
 from __future__ import annotations
 import random
-from typing import Optional
 from .algo_utils import (
     init_grid,
     remove_wall,
@@ -57,7 +56,7 @@ def hunt_and_kill(
                 phase = "hunt"
 
         elif phase == "hunt":
-            found: Optional[tuple[int, int]] = None
+            found: tuple[int, int] | None = None
             for i in range(height):
                 for j in range(width):
                     if not visited[i][j] and (j, i) not in protected:
