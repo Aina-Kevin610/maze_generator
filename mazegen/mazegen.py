@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import random
+from collections import deque
 
 from .algo import hunt_and_kill
 from .algo.algo_utils import init_protected
@@ -9,7 +10,7 @@ from .parsing import parse_config
 
 class Maze:
     """
-    Generate and save mazes from a configuration file.
+    Generate, solve, and save mazes from a configuration file.
 
     Supported generation algorithms:
         - Hunt and Kill
@@ -53,6 +54,7 @@ class Maze:
         )
 
         self.grid: list[list[int]] = []
+        self.path: list[tuple[int, int]] = []
 
     def generate(self) -> list[list[int]]:
         """
@@ -70,6 +72,97 @@ class Maze:
                 rand=self.rand,
             )
         return self.grid
+
+    def solve(self) -> list[tuple[int, int]]:
+        """
+        Solve the maze using BFS and store the shortest path.
+
+        Must be called after generate(). Uses the internal bit encoding
+        (bit0=West, bit1=South, bit2=East, bit3=North) to traverse walls.
+
+        Returns:
+            The shortest path as a list of (x, y) coordinates from entry
+            to exit, or an empty list if no path exists.
+        """
+        start = (int(self.entry[0]), int(self.entry[1]))
+        end = (int(self.exit[0]), int(self.exit[1]))
+
+        queue: deque[tuple[int, int]] = deque([start])
+        parent: dict[tuple[int, int], tuple[int, int] | None] = {
+            start: None
+        }
+
+        while queue:
+            cur = queue.popleft()
+            if cur == end:
+                self.path = self._reconstruct(parent, cur)
+                return self.path
+
+            x, y = cur
+            cell = self.grid[y][x]
+            for nx, ny, bit in [
+                (x - 1, y, 0),
+                (x, y + 1, 1),
+                (x + 1, y, 2),
+                (x, y - 1, 3),
+            ]:
+                if not (cell >> bit) & 1:
+                    nb = (nx, ny)
+                    if (
+                        0 <= nx < self.width
+                        and 0 <= ny < self.height
+                        and nb not in parent
+                    ):
+                        parent[nb] = cur
+                        queue.append(nb)
+
+        self.path = []
+        return self.path
+
+    @staticmethod
+    def _reconstruct(
+        parent: dict[tuple[int, int], tuple[int, int] | None],
+        end: tuple[int, int],
+    ) -> list[tuple[int, int]]:
+        """
+        Reconstruct the path from the BFS parent map.
+
+        Args:
+            parent: Dict mapping each visited cell to its predecessor.
+            end: The destination cell.
+
+        Returns:
+            Ordered list of (x, y) coordinates from start to end.
+        """
+        path: list[tuple[int, int]] = []
+        node: tuple[int, int] | None = end
+        while node is not None:
+            path.append(node)
+            node = parent[node]
+        return list(reversed(path))
+
+    def path_to_directions(self) -> list[str]:
+        """
+        Convert the stored path into cardinal direction letters.
+
+        Returns:
+            List of directions (N, S, E, W) between consecutive path cells.
+        """
+        directions: list[str] = []
+        for i in range(len(self.path) - 1):
+            x1, y1 = self.path[i]
+            x2, y2 = self.path[i + 1]
+            dx, dy = x2 - x1, y2 - y1
+            if dx == 1:
+                directions.append("E")
+            elif dx == -1:
+                directions.append("W")
+            elif dy == 1:
+                directions.append("S")
+            elif dy == -1:
+                directions.append("N")
+        return directions
+
 
     def hexa_maze(self) -> list[list[str]]:
         """
@@ -105,9 +198,11 @@ class Maze:
             - Empty line.
             - Entry coordinates (x,y).
             - Exit coordinates (x,y).
+            - Shortest path as N/E/S/W letters (only if solve() was called).
 
         Args:
-            grid: Internal integer-encoded maze grid.
+            grid: Internal integer-encoded maze grid (unused directly;
+                  hexa_maze() re-reads self.grid for the conversion).
         """
         hex_grid = self.hexa_maze()
         entry_x, entry_y = self.entry
@@ -119,5 +214,7 @@ class Maze:
                 f.write("\n")
                 f.write(f"{entry_x},{entry_y}\n")
                 f.write(f"{exit_x},{exit_y}\n")
+                if self.path:
+                    f.write("".join(self.path_to_directions()) + "\n")
         except OSError as e:
             print(f"Error - {self.output_file} not created: {e}")

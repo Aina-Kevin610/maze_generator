@@ -1,5 +1,12 @@
+import sys
+
 from mazegen import Maze
 
 if __name__ == "__main__":
-    maze = Maze("config.txt")
-    maze.save(maze.generate())
+    if len(sys.argv) != 2:
+        print("Usage: python3 a_maze_ing.py <config_file>")
+        sys.exit(1)
+    maze = Maze(sys.argv[1])
+    maze.generate()
+    maze.solve()
+    maze.save(maze.grid)
