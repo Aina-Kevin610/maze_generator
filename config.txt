@@ -5,6 +5,6 @@ EXIT=1,9
 OUTPUT_FILE=maze.txt
 PERFECT=False # True or False
 ALGO=prim # (hunt_and_kill or prim)
-PATTERN=42 # must be uppercase or number
+PATTERN=HEY # must be uppercase or number
 SPEED = 100
 SEED = 12
