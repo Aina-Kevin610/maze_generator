@@ -11,8 +11,8 @@ if __name__ == "__main__":
     maze.generate()
     maze.solve()
     maze.save(maze.grid)
-    win = True
+    win = False
     if win:
-        window_render(maze.output_file)
+        window_render(maze.output_file, maze.protected)
     else:
-        ascii_render(maze.output_file)
+        ascii_render(maze.output_file, protected=maze.protected)

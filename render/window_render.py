@@ -86,6 +86,7 @@ class MazeRenderer:
         entry: tuple[int, int],
         exit_: tuple[int, int],
         path: list[tuple[int, int]],
+        protected: set[tuple[int, int]] | None = None,
     ) -> None:
         """
         Initialize the renderer and create the MLX window.
@@ -101,6 +102,8 @@ class MazeRenderer:
         self.exit_ = exit_
         self.path = path
         self.path_set = set(path)
+        # store protected cells (set of (x, y) tuples)
+        self.protected = protected or set()
 
         self.height = len(grid)
         self.width = len(grid[0])
@@ -182,7 +185,6 @@ class MazeRenderer:
         for y in range(y0, y1):
             self.put_pixel(x, y, color)
 
-
     def fill_cell(self, x: int, y: int, color: int) -> None:
         """
         Fill an entire maze cell with a color.
@@ -204,7 +206,10 @@ class MazeRenderer:
             y: Cell top-left pixel y coordinate.
             color: Fill color.
         """
-        padding = min(max(2, min(self.cell_w, self.cell_h) // 4), self.cell_w // 3, self.cell_h // 3)
+        padding = min(
+            max(2, min(self.cell_w, self.cell_h) // 4),
+            self.cell_w // 3, self.cell_h // 3
+        )
         x0 = x + padding
         y0 = y + padding
         x1 = x + self.cell_w - padding
@@ -216,7 +221,6 @@ class MazeRenderer:
 
         for i in range(y0, y1):
             self.draw_line_h(x0, x1, i, color)
-
 
     def clear_image(self) -> None:
         """Clear the image buffer using the background color."""
@@ -231,6 +235,12 @@ class MazeRenderer:
     def draw(self) -> None:
         """Render the full static maze: cells, walls, entry, exit, path."""
         self.clear_image()
+
+        for x, y in self.protected:
+            if (x, y) in (self.entry, self.exit_):
+                continue
+            if 0 <= x < self.width and 0 <= y < self.height:
+                self.fill_cell(x * self.cell_w, y * self.cell_h, PROT_COLOR)
 
         for x, y in self.path_set:
             if (x, y) not in (self.entry, self.exit_):
@@ -297,8 +307,11 @@ class MazeRenderer:
         self.m.mlx_loop(self.mlx)
 
 
-def window_render(filename: str = "maze.txt") -> None:
+def window_render(
+    filename: str = "maze.txt",
+    protected: set[tuple[int, int]] | None = None
+) -> None:
     """Entry point: load maze.txt and display it with MLX."""
     grid, entry, exit_, path = parse_maze(filename)
-    renderer = MazeRenderer(grid, entry, exit_, path)
+    renderer = MazeRenderer(grid, entry, exit_, path, protected)
     renderer.run()

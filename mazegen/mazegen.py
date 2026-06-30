@@ -171,7 +171,6 @@ class Maze:
                 directions.append("N")
         return directions
 
-
     def hexa_maze(self) -> list[list[str]]:
         """
         Convert the internal grid to the subject's hexadecimal format.

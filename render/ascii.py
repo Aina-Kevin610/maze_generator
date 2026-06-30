@@ -4,6 +4,7 @@ BG_FLOOR = "\033[40m"
 BG_ENTRY = "\033[42m"
 BG_EXIT = "\033[41m"
 BG_PATH = "\033[46m"
+BG_PROT = "\033[45m"
 RESET = "\033[0m"
 
 WALL_COLORS = {
@@ -28,6 +29,7 @@ def cell_bg(
     exit_: tuple[int, int],
     path_set: set[tuple[int, int]],
     show_path: bool,
+    protected: set[tuple[int, int]] | None = None,
 ) -> str:
     if (x, y) == entry:
         return BG_ENTRY + "  " + RESET
@@ -35,6 +37,8 @@ def cell_bg(
         return BG_EXIT + "  " + RESET
     if show_path and (x, y) in path_set:
         return BG_PATH + "  " + RESET
+    if protected and (x, y) in protected:
+        return BG_PROT + "  " + RESET
     return FLOOR
 
 
@@ -88,6 +92,7 @@ def render(
     path: list[tuple[int, int]],
     wall_color: str,
     show_path: bool,
+    protected: set[tuple[int, int]] | None = None,
 ) -> None:
     height = len(grid)
     width = len(grid[0])
@@ -102,7 +107,7 @@ def render(
             top += wall_str
             top += wall_str if cell & N else FLOOR
             mid += wall_str if cell & W else FLOOR
-            mid += cell_bg(x, y, entry, exit_, path_set, show_path)
+            mid += cell_bg(x, y, entry, exit_, path_set, show_path, protected)
         top += wall_str
         mid += wall_str
         print(top)
@@ -111,13 +116,17 @@ def render(
     print(wall_str * (width * 2 + 1))
 
 
-def ascii_render(filename: str = "maze.txt") -> None:
+def ascii_render(
+    filename: str = "maze.txt",
+    protected: set[tuple[int, int]] | None = None
+) -> None:
+
     show_path = True
     current_wall_key = "1"
 
     while True:
         os.system("cls" if os.name == "nt" else "clear")
-        
+
         try:
             grid, entry, exit_, path = parse(filename)
         except FileNotFoundError:
@@ -129,18 +138,23 @@ def ascii_render(filename: str = "maze.txt") -> None:
         legend = (
             f"\n  {BG_ENTRY}  {RESET} entry   "
             f"{BG_EXIT}  {RESET} exit   "
-            f"{BG_PATH}  {RESET} path (Visible: {show_path})\n"
+            f"{BG_PATH}  {RESET} path (Visible: {show_path})   "
+            f"{BG_PROT}  {RESET} protected\n"
         )
         print(legend)
-        
-        render(grid, entry, exit_, path, wall_color, show_path)
+
+        render(
+            grid, entry, exit_,
+            path, wall_color, show_path,
+            protected=protected or set()
+        )
 
         print("\n=== Menu ===")
         print("[R] Regenerate")
-        print("[H] show\hide path")
+        print("[H] show\\hide path")
         print("[C] Change wall color")
         print("[Q] exit")
-        
+
         choice = input("\nYour choice : ").strip().upper()
 
         if choice == "Q":
