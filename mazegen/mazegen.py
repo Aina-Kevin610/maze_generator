@@ -6,6 +6,7 @@ from collections import deque
 from .algo import hunt_and_kill, prim
 from .algo.algo_utils import init_protected
 from .parsing import parse_config
+from render.tui_utils import print_box, red
 
 
 class Maze:
@@ -31,6 +32,10 @@ class Maze:
         """
         config = parse_config(filename)
 
+        if config["RENDER"]:
+            self.render = config["RENDER"]
+        else:
+            self.render = "ASCII"
         self.width: int = int(config["WIDTH"])
         self.height: int = int(config["HEIGHT"])
         self.entry: tuple[str, str] = config["ENTRY"]
@@ -224,4 +229,4 @@ class Maze:
                 if self.path:
                     f.write("".join(self.path_to_directions()) + "\n")
         except OSError as e:
-            print(f"Error - {self.output_file} not created: {e}")
+            print_box((f"{self.output_file} not created: {e}", "Error", red))

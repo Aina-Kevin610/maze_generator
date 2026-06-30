@@ -1,10 +1,12 @@
-WIDTH=20 #must be > 3
-HEIGHT=15 #must be > 3
+WIDTH=50 #must be > 3
+HEIGHT=50 #must be > 3
 ENTRY=1,1
-EXIT=1,9
+EXIT=1,40
 OUTPUT_FILE=maze.txt
-PERFECT=False # True or False
+PERFECT=True # True or False
 ALGO=prim # (hunt_and_kill or prim)
-PATTERN=HEY # must be uppercase or number
+PATTERN=42 # must be uppercase or number
 SPEED = 100
 SEED = 12
+RENDER = ASCII # ASCII or WINDOW
+ANIMATION = True # or False

@@ -102,7 +102,7 @@ class MazeRenderer:
         self.exit_ = exit_
         self.path = path
         self.path_set = set(path)
-        # store protected cells (set of (x, y) tuples)
+
         self.protected = protected or set()
 
         self.height = len(grid)

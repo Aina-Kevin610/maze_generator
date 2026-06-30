@@ -2,6 +2,7 @@ import sys
 import random
 
 from ..pattern import Pattern
+from render.tui_utils import print_box, red
 
 
 def init_grid(
@@ -55,20 +56,22 @@ def init_protected(
         Set of (x, y) coordinates that must remain fully walled.
     """
     if height < 10 or width < 10:
-        print(
-            f"Pattern [{pattern}] cannot be contained within "
-            "the maze! (10 x 10 is required)"
-        )
+        print_box((
+            f"Pattern [{pattern}] cannot be contained within the maze! (10 x 10 is required)",
+            "Warning",
+            red,
+        ))
         return set()
 
     p = Pattern(pattern)
     pat = p.create_merged()
 
     if not pat or not pat[0]:
-        print(
-            f"Pattern [{pattern}] not recognized, skipping. "
-            "(must be uppercase or number)"
-        )
+        print_box((
+            f"Pattern [{pattern}] not recognized, skipping. (must be uppercase or number)",
+            "Warning",
+            red,
+        ))
         return set()
 
     cx = width // 2
@@ -84,12 +87,12 @@ def init_protected(
 
     ex, ey = int(entry[0]), int(entry[1])
     if (ex, ey) in protected:
-        print("Error - Inaccessible entry!")
+        print_box(("Inaccessible entry!", "Error", red))
         sys.exit(1)
 
     xx, xy = int(exit_[0]), int(exit_[1])
     if (xx, xy) in protected:
-        print("Error - Inaccessible exit!")
+        print_box(("Inaccessible exit!", "Error", red))
         sys.exit(1)
 
     return protected

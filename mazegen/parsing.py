@@ -2,6 +2,8 @@ import sys
 import random
 from typing import Any
 
+from render.tui_utils import print_box, red
+
 
 class ParseError(Exception):
     """
@@ -34,7 +36,7 @@ def read_file(filename: str) -> list[str]:
         with open(filename, "r") as file:
             content = file.read().strip().splitlines()
     except FileNotFoundError:
-        print("Error - File not found!")
+        print_box(("File not found!", "Error", red))
         sys.exit(1)
     return content
 
@@ -126,7 +128,7 @@ def test_len_error(content: list[str]) -> list[tuple[str, str]]:
             tuples.append((split_line[0], split_line[1]))
         return tuples
     except ParseError as error:
-        print(f"Error - {error}")
+        print_box((str(error), "Error", red))
         sys.exit(1)
 
 
@@ -269,7 +271,7 @@ def is_valid(final: dict[Any, Any]) -> None:
             )
 
     except (ValueError, ParseError) as error:
-        print(f"Error - {error}")
+        print_box((str(error), "Error", red))
         sys.exit(1)
 
 
@@ -304,7 +306,7 @@ def parse_config(
     validated = test_len_error(cleaned)
 
     if len(validated) < 6:
-        print("Error - Missing mandatory parameter!")
+        print_box(("Missing mandatory parameter!", "Error", red))
         sys.exit(1)
 
     as_dict = convert_to_dict(validated)

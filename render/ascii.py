@@ -1,10 +1,11 @@
 import os
+from .tui_utils import loading, print_box, red, cyan
 
 BG_FLOOR = "\033[40m"
 BG_ENTRY = "\033[42m"
 BG_EXIT = "\033[41m"
 BG_PATH = "\033[46m"
-BG_PROT = "\033[45m"
+BG_PROT = "\033[100m"
 RESET = "\033[0m"
 
 WALL_COLORS = {
@@ -118,7 +119,8 @@ def render(
 
 def ascii_render(
     filename: str = "maze.txt",
-    protected: set[tuple[int, int]] | None = None
+    protected: set[tuple[int, int]] | None = None,
+    info: list[str] | None = None,
 ) -> None:
 
     show_path = True
@@ -130,7 +132,7 @@ def ascii_render(
         try:
             grid, entry, exit_, path = parse(filename)
         except FileNotFoundError:
-            print(f"Erreur : Le fichier '{filename}' est introuvable.")
+            print_box((f"Can't find '{filename}'.", "Error", red))
             return
 
         wall_color = WALL_COLORS[current_wall_key]
@@ -141,6 +143,10 @@ def ascii_render(
             f"{BG_PATH}  {RESET} path (Visible: {show_path})   "
             f"{BG_PROT}  {RESET} protected\n"
         )
+        loading("generating...")
+
+        if info:
+            print_box((info, "Info", cyan))
         print(legend)
 
         render(
