@@ -1,5 +1,6 @@
 import sys
 from render.ascii import ascii_render
+from render.window_render import window_render
 from mazegen import Maze
 
 if __name__ == "__main__":
@@ -10,4 +11,8 @@ if __name__ == "__main__":
     maze.generate()
     maze.solve()
     maze.save(maze.grid)
-    ascii_render(maze.output_file)
+    win = True
+    if win:
+        window_render(maze.output_file)
+    else:
+        ascii_render(maze.output_file)

@@ -3,7 +3,7 @@ from __future__ import annotations
 import random
 from collections import deque
 
-from .algo import hunt_and_kill
+from .algo import hunt_and_kill, prim
 from .algo.algo_utils import init_protected
 from .parsing import parse_config
 
@@ -65,6 +65,14 @@ class Maze:
         """
         if self.algo == "hunt_and_kill":
             self.grid = hunt_and_kill(
+                width=self.width,
+                height=self.height,
+                protected=self.protected,
+                perfect=self.perfect,
+                rand=self.rand,
+            )
+        elif self.algo == "prim":
+            self.grid = prim(
                 width=self.width,
                 height=self.height,
                 protected=self.protected,
